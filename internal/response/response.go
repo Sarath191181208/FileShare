@@ -33,22 +33,22 @@ func (app *ResponseWriter) errorResponse(w http.ResponseWriter, _ *http.Request,
 	}
 }
 
-func (app *ResponseWriter) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
+func (app *ResponseWriter) ServerErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.logError(r, err)
 	message := "the server encountered a problem and could not process your request"
 	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 
-func (app *ResponseWriter) notFoundResponse(w http.ResponseWriter, _ *http.Request) {
+func (app *ResponseWriter) NotFoundResponse(w http.ResponseWriter, _ *http.Request) {
 	msg := "the requested resource couldn't be found"
 	app.errorResponse(w, nil, http.StatusNotFound, msg)
 }
 
-func (app *ResponseWriter) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
+func (app *ResponseWriter) MethodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf("the method %s isn't supported for this resource", r.Method)
 	app.errorResponse(w, nil, http.StatusNotFound, msg)
 }
 
-func (app *ResponseWriter) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+func (app *ResponseWriter) FailedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
 }
