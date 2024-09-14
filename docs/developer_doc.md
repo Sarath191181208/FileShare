@@ -36,3 +36,7 @@ We’ve included a **version** number column, which we will increment each time 
 user record is updated. This will allow us to use optimistic locking to prevent race
 conditions when updating user records, in the same way that we did with movies earlier
 in the book.
+
+## How are passwords compared and what preventive measures have we taken?
+- Passwords are compared using `bcrypt.CompareHashAndPassword()` which re-hashes using the same salt and cost param.
+- The compare function is safe against timing attacks because of `subtle.ConstantTimeCompare()` is an internal func of `bcrypt.CompareHashAndPassword`.
