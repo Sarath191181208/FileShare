@@ -12,6 +12,7 @@ import (
 )
 
 var ErrDuplicateEmail = errors.New("duplicate email")
+var ErrRecordNotFound = errors.New("record not found")
 
 type User struct {
 	ID        int64     `json:"id"`
@@ -95,4 +96,34 @@ func (m UserModel) Insert(user *User) error {
 	default:
 		return err
 	}
+}
+
+func (m UserModel) GetByEmail(email string) (*User, error) {
+  query := `
+    SELECT id, created_at, email, password_hash, version
+    FROM users
+    WHERE email = $1`
+
+  var user User
+
+  ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+  defer cancel()
+
+  err := m.DB.QueryRowContext(ctx, query, email).Scan(
+    &user.ID,
+    &user.CreatedAt,
+    &user.Email,
+    &user.Password.hash,
+    &user.Version,
+  )
+  if err != nil {
+    switch {
+    case errors.Is(err, sql.ErrNoRows):
+      return nil, ErrRecordNotFound
+    default:
+      return nil, err
+    }
+  }
+
+  return &user, nil
 }
