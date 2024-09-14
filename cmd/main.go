@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -11,6 +13,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"sarath/backend_project/cmd/api"
+	"sarath/backend_project/internal/data"
 )
 
 func main() {
@@ -23,10 +26,22 @@ func main() {
 	flag.StringVar(&config.Jwt.Secret, "jwt-secret", os.Getenv("jwt-secret"), "The JWT Secret key")
 	flag.Parse()
 
+  logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+
+
+	// starting the db
+	db, err := OpenDB(config)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer db.Close()
+	logger.Printf("database connection pool established")
+
 	// defining the application
 	app := &api.Application{
 		Config: config,
-		Logger: *log.New(os.Stdout, "", log.Ldate|log.Ltime),
+		Logger: logger,
+    Models: data.NewModels(db),
 	}
 
 	server := &http.Server{
@@ -37,17 +52,9 @@ func main() {
 		WriteTimeout: 10 * time.Minute,
 	}
 
-	// starting the db
-	db, err := OpenDB(app.Config)
-	if err != nil {
-		app.Logger.Fatal(err)
-	}
-	defer db.Close()
-	app.Logger.Printf("database connection pool established")
-
 	// start the server
 	app.Logger.Printf("Starting %s server on %s", app.Config.Env, server.Addr)
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	app.Logger.Fatal(err)
 }
 
