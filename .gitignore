@@ -2,3 +2,4 @@ bin/
 tmp/
 .postgres-data/
 .null-ls*
+.env
