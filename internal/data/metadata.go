@@ -18,6 +18,6 @@ type MetaDataModel struct{
 }
 
 func (m *MetaDataModel) Insert(metaData *MetaData) error {
-  stmt := `INSERT INTO metadata (name, upload_date, size, content_type) VALUES ($1, $2, $3, $4) RETURNING id`
-  return m.DB.QueryRow(stmt, metaData.Name, metaData.UploadDate, metaData.Size, metaData.ContentType).Scan(&metaData.ID)
+  stmt := `INSERT INTO metadata (name, size, content_type) VALUES ($1, $2, $3, $4) RETURNING id`
+  return m.DB.QueryRow(stmt, metaData.Name, metaData.Size, metaData.ContentType).Scan(&metaData.ID)
 }
