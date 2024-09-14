@@ -9,6 +9,31 @@ import (
 	"strings"
 )
 
+type Envelope map[string]interface{}
+
+func WriteJSON(data Envelope, w http.ResponseWriter, httpStatus int, headers http.Header) error {
+	// convert data to json
+	json, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	// put all the headers into the response
+	for k, v := range headers {
+		w.Header()[k] = v
+	}
+
+	// write the headers
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(httpStatus)
+
+	// write the json data
+	w.Write(json)
+
+	// return nil as everything is completed without error
+	return nil
+}
+
 
 func ReadJSON(data interface{}, w http.ResponseWriter, r *http.Request) error {
 	// Limiting JSON body to be 1MB
