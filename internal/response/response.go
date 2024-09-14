@@ -57,6 +57,10 @@ func (app *ResponseWriter) BadRequestResponse(w http.ResponseWriter, r *http.Req
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
 
+func (app *ResponseWriter) FileTooLargeResponse(w http.ResponseWriter, r *http.Request){
+  app.errorResponse(w, r, http.StatusBadRequest, "file too large")
+}
+
 
 func (app *ResponseWriter) UnauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
   app.errorResponse(w, r, http.StatusUnauthorized, err.Error())
