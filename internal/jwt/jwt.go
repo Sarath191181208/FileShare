@@ -1,4 +1,4 @@
-package api
+package jwt
 
 import (
 	"fmt"
