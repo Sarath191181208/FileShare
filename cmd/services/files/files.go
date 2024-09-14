@@ -55,13 +55,19 @@ func (h *Handler) UploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	fileURL, err := h.uploadToS3(file, name)
 	if err != nil {
 		responseWriter.ServerErrorResponse(w, r, err)
+		return
 	}
+
+	// get user id from context
+	id := r.Context().Value("id").(int64)
 
 	// create the metadata object
 	metadata := &data.MetaData{
+		UserId:      id,
 		Name:        handler.Filename,
 		Size:        handler.Size,
 		ContentType: handler.Header.Get("Content-Type"),
+		FileUrl:     fileURL,
 	}
 
 	// insert the metadata into the database

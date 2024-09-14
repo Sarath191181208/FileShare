@@ -1,5 +1,6 @@
 CREATE TABLE metadata (
     id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
     name TEXT NOT NULL,
     upload_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     size BIGINT NOT NULL,
