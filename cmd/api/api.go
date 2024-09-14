@@ -6,6 +6,7 @@ import (
 	"sarath/backend_project/internal/data"
 
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/go-redis/redis"
 )
 
 // Delcaring the version global constant
@@ -30,4 +31,5 @@ type Application struct {
 	Logger *log.Logger
 	Models *data.Models
 	S3Sess *session.Session
+	Cache  *redis.Client
 }

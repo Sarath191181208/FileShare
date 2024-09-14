@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/go-redis/redis"
 	_ "github.com/lib/pq"
 
 	"sarath/backend_project/cmd/api"
@@ -30,9 +31,17 @@ func main() {
 	flag.StringVar(&config.Aws.Bucket, "aws-bucket", os.Getenv("AWS_BUCKET"), "The AWS Bucket which the files are uploaded")
 	flag.Parse()
 
+	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
+	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
+	awsRegion := aws.String(os.Getenv("AWS_REGION"))
+	awsToken := ""
+
+	redisAddr := os.Getenv("REDIS_ADDRESS")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-  log.Print("config", config)
+	log.Print("config", config)
 
 	// starting the db
 	db, err := OpenDB(config)
@@ -44,15 +53,26 @@ func main() {
 
 	// creating a aws session
 	awsSess, err := session.NewSession(&aws.Config{
-    Region: aws.String("us-east-1"),
-		Credentials: credentials.NewStaticCredentials(
-			os.Getenv("AWS_ACCESS_KEY"),
-			os.Getenv("AWS_SECRET_KEY"), ""),
+		Region:      awsRegion,
+		Credentials: credentials.NewStaticCredentials(awsAccessKey, awsSecretKey, awsToken),
+	})
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	// creating a redis client
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: redisPassword,
+		DB:       0,
 	})
 
-	 if err != nil{
-	   logger.Fatal(err)
-	 }
+  // ping the redis client 
+  _, err = redisClient.Ping().Result()
+  if err != nil {
+    logger.Fatal(err)
+  }
+  logger.Printf("redis connection pool established")
 
 	// defining the application
 	app := &api.Application{
@@ -60,6 +80,7 @@ func main() {
 		Logger: logger,
 		Models: data.NewModels(db),
 		S3Sess: awsSess,
+		Cache:  redisClient,
 	}
 
 	server := &http.Server{
