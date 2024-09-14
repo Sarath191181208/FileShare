@@ -20,7 +20,7 @@ func (app *Application) Routes() *mux.Router {
   router.HandleFunc("/register", userHandler.RegisterUserHandler).Methods(http.MethodPost)
   router.HandleFunc("/login", userHandler.GetLoginUserHandler(app.Config.Jwt.Secret)).Methods(http.MethodPost)
 
-  // TODO: Keep pagination, caching in mind
+  // TODO: Keep pagination
   subrouter.HandleFunc("/upload", filesHandler.UploadFileHandler).Methods(http.MethodPost)
   subrouter.HandleFunc("/share/{file_id}", filesHandler.ShareFileHandler).Methods(http.MethodGet)
   subrouter.HandleFunc("/files", filesHandler.GetFilesHandler).Methods(http.MethodGet)
