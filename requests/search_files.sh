@@ -8,7 +8,7 @@ LOGIN_URL="http://localhost:4000/login"
 SEARCH_FILES_URL="http://localhost:4000/api/v1/search"
 
 # Optional query parameters
-# FILENAME="2024-06-16-105332_sway-screenshot.png"
+FILENAME="2024-06-16-105332_sway-screenshot.png"
 CONTENT_TYPE="image/png"
 TIME="2024-09-14T17:00:16.23456Z"
 
@@ -51,7 +51,7 @@ echo ""
 echo "Testing search files with query parameters..."
 
 # Build query string
-QUERY_STRING="?&content_type=${CONTENT_TYPE}&time=${TIME}"
+QUERY_STRING="?filename=${FILENAME}&content_type=${CONTENT_TYPE}&time=${TIME}"
 
 # Make request to search files
 SEARCH_FILES_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "${SEARCH_FILES_URL}${QUERY_STRING}" \
