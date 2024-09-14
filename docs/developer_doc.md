@@ -5,6 +5,9 @@ uploads to S3 (or locally if cloud integration is not available), implement cach
 **The project must be built in Go** and should demonstrate proficiency in handling concurrency and
 performance optimizations.
 
+## Setup gotchas 
+- postgres `citext` object.
+
 
 The problem is clearly written in the following [doc](https://drive.google.com/file/d/1zeOOxV8rMPXlVkRl236omBBQW_f1EW9g/view)
 ## How does the app handle concurrent requests ? 
