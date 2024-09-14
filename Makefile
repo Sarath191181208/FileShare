@@ -23,6 +23,7 @@ confirm:
 .PHONY: run/live
 run/live:
 	export DB_DSN="postgres://user:psswd@localhost/backend?sslmode=disable" 
+	export JWT_SECRET="JWT_SECRET"
 	air \
 		--build.cmd "go build -o /tmp/bin/${BINARY_NAME} ${MAIN_PACKAGE_PATH}" \
 		--build.bin "/tmp/bin/main" \

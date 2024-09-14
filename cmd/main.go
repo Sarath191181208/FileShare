@@ -23,7 +23,7 @@ func main() {
 	flag.IntVar(&config.Port, "port", 4000, "API server port")
 	flag.StringVar(&config.Env, "env", "dev", "Environment (dev | stag | production)")
 	flag.StringVar(&config.Db.Dsn, "db-dsn", os.Getenv("DB_DSN"), "PostgresSQL DSN")
-	flag.StringVar(&config.Jwt.Secret, "jwt-secret", os.Getenv("jwt-secret"), "The JWT Secret key")
+	flag.StringVar(&config.Jwt.Secret, "jwt-secret", os.Getenv("JWT_SECRET"), "The JWT Secret key")
 	flag.Parse()
 
   logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
