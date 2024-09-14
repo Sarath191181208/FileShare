@@ -7,15 +7,15 @@ available), implement caching for file metadata. **The project must be built in
 Go** and should demonstrate proficiency in handling concurrency and performance
 optimizations.
 
+The problem is clearly written in the following
+[doc](https://drive.google.com/file/d/1zeOOxV8rMPXlVkRl236omBBQW_f1EW9g/view)
+
 ## Setup gotchas
 
 - postgres `citext` object.
 
 ## SQL Injection attacks 
 The app is safe against injection attacks are we are passing parametrized quries to the db using the function `QueryRowContext`. Therefore go internally handles the sql injection attacks by sanitizing the input.
-
-The problem is clearly written in the following
-[doc](https://drive.google.com/file/d/1zeOOxV8rMPXlVkRl236omBBQW_f1EW9g/view)
 
 ## How does the app handle concurrent requests ?
 
@@ -99,3 +99,6 @@ go func() {
     }
 }()
 ```
+
+## Where can I find the aws-go documentation?
+[https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/)
