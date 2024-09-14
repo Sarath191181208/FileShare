@@ -51,9 +51,9 @@ func main() {
 	app.Logger.Fatal(err)
 }
 
-func OpenDB(cfg Config) (*sql.DB, error) {
+func OpenDB(cfg api.Config) (*sql.DB, error) {
 	// open an sql connection
-	db, err := sql.Open("postgres", cfg.db.dsn)
+	db, err := sql.Open("postgres", cfg.Db.Dsn)
 	if err != nil {
 		return nil, err
 	}
