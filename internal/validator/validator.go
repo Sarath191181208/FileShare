@@ -1,5 +1,9 @@
 package validator
 
+import "regexp"
+
+var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
 type Validator struct {
 	Errors map[string]string
 }
@@ -22,4 +26,8 @@ func (v *Validator) Check(ok bool, key, message string) {
 	if !ok {
 		v.AddError(key, message)
 	}
+}
+
+func (v *Validator) Matches(s string, rx *regexp.Regexp) bool {
+	return rx.MatchString(s)
 }
