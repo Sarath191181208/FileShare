@@ -118,7 +118,7 @@ func (h *Handler) GetLoginUserHandler(jwtSecret string) func(http.ResponseWriter
 			return
 		}
 
-		err = json.WriteJSON(json.Envelope{"jwt": jwt}, w, http.StatusOK, nil)
+		err = json.WriteJSON(json.Envelope{"token": jwt}, w, http.StatusOK, nil)
 		if err != nil {
 			responseWriter.ServerErrorResponse(w, r, err)
 		}
