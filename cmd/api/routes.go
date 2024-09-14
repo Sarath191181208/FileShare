@@ -2,17 +2,21 @@ package api
 
 import (
 	"net/http"
+	"sarath/backend_project/cmd/services/user"
 
 	"github.com/gorilla/mux"
 )
 
 func (app *Application) Routes() *mux.Router {
 	router := mux.NewRouter()
+
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
   subrouter.Use(getAuthMiddlewarewithJWT(app.Config.Jwt.Secret))
 
-	// router.HandleFunc("/register", app.registerUserHandler).Methods(http.MethodPost)
-	// router.HandleFunc("/login", app.loginUserHandler).Methods(http.MethodPost)
+  userHandler := user.NewHandler();
+
+  router.HandleFunc("/register", userHandler.RegisterUserHandler).Methods(http.MethodPost)
+  router.HandleFunc("/login", userHandler.LoginUserHandler).Methods(http.MethodPost)
 
   // TODO: Keep pagination, caching in mind
 	// subrouter.HandleFunc("/files", app.getFilesMetadata).Methods(http.MethodGet)
