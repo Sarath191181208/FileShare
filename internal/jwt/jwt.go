@@ -22,9 +22,8 @@ func GenerateJWT(jwtKey, email string, id int64) (string, error) {
 			ExpiresAt: expirationTime.Unix(),
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return token.SignedString([]byte(jwtKey))
 }
 
 func ValidateJWT(jwtKey, tokenStr string) (*Claims, error) {
