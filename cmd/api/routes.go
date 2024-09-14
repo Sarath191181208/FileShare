@@ -8,8 +8,8 @@ import (
 
 func (app *Application) Routes() *mux.Router {
 	router := mux.NewRouter()
-	// subrouter := router.PathPrefix("/api/v1").Subrouter()
-  // subrouter.Use(app.authMiddleware)
+	subrouter := router.PathPrefix("/api/v1").Subrouter()
+  subrouter.Use(getAuthMiddlewarewithJWT(app.Config.JWTSecretKey))
 
 	// router.HandleFunc("/register", app.registerUserHandler).Methods(http.MethodPost)
 	// router.HandleFunc("/login", app.loginUserHandler).Methods(http.MethodPost)
