@@ -102,3 +102,15 @@ go func() {
 
 ## Where can I find the aws-go documentation?
 [https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/)
+
+## How does the application handle file uplods to s3 ? 
+
+As we use the `uploader.Upload` from aws it gives us intelligent buffering large files into smaller chunks 
+and sending them in parallel across multiple goroutines. 
+You can configure the buffer size and concurrency through the Uploader's parameters.
+Additional functional options can be provided to configure the individual upload.
+These options are copies of the Uploader instance Upload is called from.
+Modifying the options will not impact the original Uploader instance.
+Use the WithUploaderRequestOptions helper function to pass in request 
+options that will be applied to all API operations made with this uploader.
+It is safe to call this method concurrently across goroutines.
