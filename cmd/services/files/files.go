@@ -29,12 +29,13 @@ type Handler struct {
   Cache *redis.Client
 }
 
-func NewHandler(logger *log.Logger, models *data.Models, s3Sess *session.Session, bucket string) *Handler {
+func NewHandler(logger *log.Logger, models *data.Models, s3Sess *session.Session, bucket string, cache *redis.Client) *Handler {
 	return &Handler{
 		Logger: logger,
 		S3Sess: s3Sess,
 		models: models,
 		Bucket: bucket,
+    Cache: cache,
 	}
 }
 
