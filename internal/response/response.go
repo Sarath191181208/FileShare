@@ -56,3 +56,9 @@ func (app *ResponseWriter) FailedValidationResponse(w http.ResponseWriter, r *ht
 func (app *ResponseWriter) BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
+
+
+func (app *ResponseWriter) UnauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
+  app.errorResponse(w, r, http.StatusUnauthorized, err.Error())
+}
+
