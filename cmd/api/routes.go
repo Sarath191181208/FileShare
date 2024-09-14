@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"sarath/backend_project/cmd/services/files"
 	"sarath/backend_project/cmd/services/user"
 
 	"github.com/gorilla/mux"
@@ -14,11 +15,13 @@ func (app *Application) Routes() *mux.Router {
   subrouter.Use(getAuthMiddlewarewithJWT(app.Config.Jwt.Secret))
 
   userHandler := user.NewHandler(app.Logger, app.Models);
+  filesHandler := files.NewHandler(app.Logger, app.Models);
 
   router.HandleFunc("/register", userHandler.RegisterUserHandler).Methods(http.MethodPost)
   router.HandleFunc("/login", userHandler.GetLoginUserHandler(app.Config.Jwt.Secret)).Methods(http.MethodPost)
 
   // TODO: Keep pagination, caching in mind
+  subrouter.HandleFunc("/upload", filesHandler.UploadFileHandler).Methods(http.MethodPost)
 	// subrouter.HandleFunc("/files", app.getFilesMetadata).Methods(http.MethodGet)
   // subrouter.HandleFunc("/share/:file_id", app.createMovieHandler).Methods(http.MethodPost)
   // subrouter.HandleFunc("/search", app.searchMoviesHandler).Methods(http.MethodGet)
