@@ -25,6 +25,7 @@ func getAuthMiddlewarewithJWT(jwtToken string) func(http.Handler) http.Handler {
 
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, "email", claims.Email)
+      ctx = context.WithValue(ctx, "id", claims.Id)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
