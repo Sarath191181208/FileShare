@@ -29,7 +29,7 @@ func GenerateJWT(jwtKey, email string, id int64) (string, error) {
 func ValidateJWT(jwtKey, tokenStr string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return []byte(jwtKey), nil
 	})
 
 	if err != nil {
