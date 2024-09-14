@@ -13,7 +13,7 @@ func (app *Application) Routes() *mux.Router {
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
   subrouter.Use(getAuthMiddlewarewithJWT(app.Config.Jwt.Secret))
 
-  userHandler := user.NewHandler();
+  userHandler := user.NewHandler(&app.Logger, app.models);
 
   router.HandleFunc("/register", userHandler.RegisterUserHandler).Methods(http.MethodPost)
   router.HandleFunc("/login", userHandler.LoginUserHandler).Methods(http.MethodPost)
