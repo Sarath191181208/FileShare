@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: backend
+      POSTGRES_PASSWORD: psswd
+      POSTGRES_USER: user
+    volumes:
+      - ./.postgres-data/db:/var/lib/postgresql/data 
+    ports:
+      - 5432:5432
