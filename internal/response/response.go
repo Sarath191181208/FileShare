@@ -8,16 +8,16 @@ import (
 	"sarath/backend_project/internal/json"
 )
 
-type ResponseWriter struct{
-  logger *log.Logger
+type ResponseWriter struct {
+	logger *log.Logger
 }
 
 func NewResponseWriter(logger *log.Logger) *ResponseWriter {
-  return &ResponseWriter{logger}
+	return &ResponseWriter{logger}
 }
 
 func (app *ResponseWriter) logError(_ *http.Request, err error) {
-  app.logger.Println(err)
+	app.logger.Println(err)
 }
 
 func (app *ResponseWriter) errorResponse(w http.ResponseWriter, _ *http.Request, status int, message interface{}) {
@@ -51,4 +51,8 @@ func (app *ResponseWriter) MethodNotAllowedResponse(w http.ResponseWriter, r *ht
 
 func (app *ResponseWriter) FailedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+}
+
+func (app *ResponseWriter) BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
