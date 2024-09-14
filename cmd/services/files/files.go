@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"time"
 
 	"sarath/backend_project/internal/data"
 	"sarath/backend_project/internal/json"
@@ -124,6 +125,7 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 		responseWriter.ServerErrorResponse(w, r, err)
 	}
 }
+
 func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value("id").(int64)
 	responseWriter := response.NewResponseWriter(h.Logger)
@@ -143,3 +145,38 @@ func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) SearchFileHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value("id").(int64)
+
+	// Retrieve query parameters
+	params := r.URL.Query()
+	filename := params.Get("filename")
+	contentType := params.Get("content_type")
+	timeString := params.Get("time")
+
+	responseWriter := response.NewResponseWriter(h.Logger)
+
+	// convert the time string to time.Time
+  var parsedTime time.Time
+  var err error
+	if timeString != "" {
+		parsedTime, err = time.Parse(time.RFC3339, timeString)
+		if err != nil {
+			responseWriter.BadRequestResponse(w, r, fmt.Errorf("invalid time format time should be in RFC3339 format"))
+			return
+		}
+	}
+
+	// search the files based on the input
+	metadata, err := h.models.MetaData.Search(id, filename, contentType, &parsedTime)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	data := json.Envelope{"metadata": metadata}
+	err = json.WriteJSON(data, w, http.StatusOK, nil)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+	}
+}

@@ -22,12 +22,9 @@ func (app *Application) Routes() *mux.Router {
 
   // TODO: Keep pagination, caching in mind
   subrouter.HandleFunc("/upload", filesHandler.UploadFileHandler).Methods(http.MethodPost)
-  subrouter.HandleFunc("/share/{file_id}", filesHandler.ShareFileHandler).Methods(http.MethodPost)
-	// subrouter.HandleFunc("/files", app.getFilesMetadata).Methods(http.MethodGet)
-  // subrouter.HandleFunc("/search", app.searchMoviesHandler).Methods(http.MethodGet)
-	// subrouter.HandleFunc("/v1/movies/:id", app.showMovieHandler).Methods(http.MethodGet)
   subrouter.HandleFunc("/share/{file_id}", filesHandler.ShareFileHandler).Methods(http.MethodGet)
   subrouter.HandleFunc("/files", filesHandler.GetFilesHandler).Methods(http.MethodGet)
+  subrouter.HandleFunc("/search", filesHandler.SearchFileHandler).Methods(http.MethodGet)
 
 	return router
 }

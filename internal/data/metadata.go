@@ -57,3 +57,53 @@ func (m *MetaDataModel) GetByUserID(id int64) ([]*MetaData, error) {
 	return metadata, nil
 }
 
+func (m *MetaDataModel) Search(user_id int64, filename string, content_type string, time *time.Time) ([]*MetaData, error) {
+	// Start building the SQL query
+	stmt := `SELECT id, name, upload_date, size, content_type, file_url FROM metadata WHERE user_id = $1 `
+  params := []string { "$2", "$3", "$4" }
+  paramIndex := 0
+	args := []interface{}{user_id}
+
+	// Add conditions based on non-empty parameters
+  if filename != "" {
+    stmt += fmt.Sprintf(" AND name = %s ", params[paramIndex])
+    args = append(args, filename)
+    paramIndex++
+  }
+
+  if content_type != "" {
+    stmt += fmt.Sprintf(" AND content_type = %s ", params[paramIndex])
+    args = append(args, content_type)
+    paramIndex++
+  }
+
+  if time != nil {
+    stmt += fmt.Sprintf(" AND upload_date > %s ", params[paramIndex])
+    args = append(args, time)
+    paramIndex++
+  }
+
+
+	stmt += ` LIMIT 10`
+
+	// Prepare the query
+	rows, err := m.DB.Query(stmt, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var metadata []*MetaData
+	for rows.Next() {
+		meta := &MetaData{}
+		err := rows.Scan(&meta.ID, &meta.Name, &meta.UploadDate, &meta.Size, &meta.ContentType, &meta.FileUrl)
+		if err != nil {
+			return nil, err
+		}
+		metadata = append(metadata, meta)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return metadata, nil
+}
