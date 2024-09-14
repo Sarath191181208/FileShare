@@ -41,8 +41,6 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	log.Print("config", config)
-
 	// starting the db
 	db, err := OpenDB(config)
 	if err != nil {

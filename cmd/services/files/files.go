@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	encjson "encoding/json"
 
 	"sarath/backend_project/internal/data"
 	"sarath/backend_project/internal/json"
@@ -15,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
@@ -24,6 +26,7 @@ type Handler struct {
 	S3Sess *session.Session
 	models *data.Models
 	Bucket string
+  Cache *redis.Client
 }
 
 func NewHandler(logger *log.Logger, models *data.Models, s3Sess *session.Session, bucket string) *Handler {
@@ -112,12 +115,29 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+  // check if the file url is in cache 
+  fileUrl, err := h.Cache.Get(strconv.FormatInt(fileID, 10)).Result()
+  if err == nil {
+    data := json.Envelope{"file_url": fileUrl}
+    err = json.WriteJSON(data, w, http.StatusOK, nil)
+    if err != nil {
+      responseWriter.ServerErrorResponse(w, r, err)
+    }
+    return
+  }
+
 	// return the file url whose id is fileID
 	metadata, err := h.models.MetaData.Get(fileID)
 	if err != nil {
 		responseWriter.ServerErrorResponse(w, r, err)
 		return
 	}
+
+  // write metadata to cache 
+  err = h.Cache.Set(strconv.FormatInt(fileID, 10), metadata.FileUrl, time.Minute*5).Err()
+  if err != nil {
+    h.Logger.Printf("error writing to cache: %v", err)
+  }
 
 	data := json.Envelope{"file_url": metadata.FileUrl}
 	err = json.WriteJSON(data, w, http.StatusOK, nil)
@@ -128,7 +148,24 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value("id").(int64)
+  cacheKey := strconv.FormatInt(id, 10)
 	responseWriter := response.NewResponseWriter(h.Logger)
+
+  // check if the metadata is in cache 
+  cacheMetaData, err := h.Cache.Get(cacheKey).Result()
+  if err == nil {
+    var metadataList []*data.MetaData
+    err = encjson.Unmarshal([]byte(cacheMetaData), &metadataList)
+    if err != nil {
+      h.Logger.Printf("error unmarshalling metadata: %v", err)
+    }
+    data := json.Envelope{"metadata": metadataList}
+    err = json.WriteJSON(data, w, http.StatusOK, nil)
+    if err != nil {
+      responseWriter.ServerErrorResponse(w, r, err)
+    }
+    return
+  }
 
 	// TODO: Handle pagination
 	// get the files based on the user id
@@ -138,6 +175,17 @@ func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+  // write metadata to cache 
+  jsonData, err := encjson.Marshal(metadata) 
+  if err != nil {
+    h.Logger.Printf("error marshalling metadata: %v", err)
+  }
+  err = h.Cache.Set(cacheKey, string(jsonData), time.Minute*5).Err()
+  if err != nil {
+    h.Logger.Printf("error writing to cache: %v", err)
+  }
+
+  // send the metadata to the client
 	data := json.Envelope{"metadata": metadata}
 	err = json.WriteJSON(data, w, http.StatusOK, nil)
 	if err != nil {
