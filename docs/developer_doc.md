@@ -40,3 +40,22 @@ in the book.
 ## How are passwords compared and what preventive measures have we taken?
 - Passwords are compared using `bcrypt.CompareHashAndPassword()` which re-hashes using the same salt and cost param.
 - The compare function is safe against timing attacks because of `subtle.ConstantTimeCompare()` is an internal func of `bcrypt.CompareHashAndPassword`.
+
+## Signup request 
+The curl request will look as follows: 
+```bash
+curl -X POST localhost:4000/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "sarath@gmail.com", "password": "12345678"}'
+```
+
+The example response is as follows:
+```
+{
+  "user": {
+    "id": 1,
+    "created_at": "2024-09-14T10:28:51Z",
+    "email": "sarath@gmail.com"
+  }
+}
+```
