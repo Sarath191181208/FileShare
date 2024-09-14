@@ -1,7 +1,7 @@
 MAIN_PACKAGE_PATH := ./cmd
 BINARY_NAME := main
 MIGRATIONS_DIR := ./migrations
-DB_DSN := "postgres://user:psswd@localhost/backend?sslmode=disable"
+DB_DSN := postgres://user:psswd@localhost/backend?sslmode=disable
 
 # ==================================================================================== #
 # HELPERS
@@ -26,7 +26,7 @@ confirm:
 run/live:
 	export DB_DSN=$(DB_DSN)
 	export JWT_SECRET="JWT_SECRET"
-	set +a && source ./.env && set -a
+	set -a && source ./.env && set +a
 	air \
 		--build.cmd "go build -o /tmp/bin/${BINARY_NAME} ${MAIN_PACKAGE_PATH}" \
 		--build.bin "/tmp/bin/main" 
