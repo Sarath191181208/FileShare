@@ -2,7 +2,10 @@ package api
 
 import (
 	"log"
+
 	"sarath/backend_project/internal/data"
+
+	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 // Delcaring the version global constant
@@ -17,10 +20,14 @@ type Config struct {
 	Jwt struct {
 		Secret string
 	}
+	Aws struct {
+		Bucket string
+	}
 }
 
 type Application struct {
 	Config Config
 	Logger *log.Logger
-  Models *data.Models
+	Models *data.Models
+	S3Sess *session.Session
 }

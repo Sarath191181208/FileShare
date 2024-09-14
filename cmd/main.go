@@ -10,6 +10,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/lib/pq"
 
 	"sarath/backend_project/cmd/api"
@@ -24,10 +27,10 @@ func main() {
 	flag.StringVar(&config.Env, "env", "dev", "Environment (dev | stag | production)")
 	flag.StringVar(&config.Db.Dsn, "db-dsn", os.Getenv("DB_DSN"), "PostgresSQL DSN")
 	flag.StringVar(&config.Jwt.Secret, "jwt-secret", os.Getenv("JWT_SECRET"), "The JWT Secret key")
+	flag.StringVar(&config.Aws.Bucket, "aws-bucket", os.Getenv("AWS_BUCKET"), "The AWS Bucket which the files are uploaded")
 	flag.Parse()
 
-  logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	// starting the db
 	db, err := OpenDB(config)
@@ -37,11 +40,19 @@ func main() {
 	defer db.Close()
 	logger.Printf("database connection pool established")
 
+	// creating a aws session
+	awsSess, err := session.NewSession(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(
+			os.Getenv("AWS_ACCESS_KEY"),
+			os.Getenv("AWS_SECRET_KEY"), ""),
+	})
+
 	// defining the application
 	app := &api.Application{
 		Config: config,
 		Logger: logger,
-    Models: data.NewModels(db),
+		Models: data.NewModels(db),
+		S3Sess: awsSess,
 	}
 
 	server := &http.Server{
