@@ -11,6 +11,7 @@ type Config struct {
 	Db   struct {
 		Dsn string // data source name
 	}
+  JWTSecretKey string
 }
 
 type Application struct {

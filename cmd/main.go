@@ -17,6 +17,7 @@ func main() {
 	flag.IntVar(&config.Port, "port", 4000, "API server port")
 	flag.StringVar(&config.Env, "env", "dev", "Environment (dev | stag | production)")
   flag.StringVar(&config.Db.Dsn, "db-dsn", os.Getenv("GREENLIGHT_DB_DSN"), "PostgresSQL DSN")
+  flag.StringVar(&config.JWTSecretKey, "jwt-secret", os.Getenv("jwt-secret"), "The JWT Secret key")
 	flag.Parse()
 
 	// defining the application
