@@ -32,6 +32,8 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
+  log.Print("config", config.Db.Dsn)
+
 	// starting the db
 	db, err := OpenDB(config)
 	if err != nil {
@@ -46,6 +48,10 @@ func main() {
 			os.Getenv("AWS_ACCESS_KEY"),
 			os.Getenv("AWS_SECRET_KEY"), ""),
 	})
+
+  if err != nil{
+    logger.Fatal(err)
+  }
 
 	// defining the application
 	app := &api.Application{
