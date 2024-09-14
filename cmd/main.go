@@ -32,7 +32,7 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-  log.Print("config", config.Db.Dsn)
+  log.Print("config", config)
 
 	// starting the db
 	db, err := OpenDB(config)
@@ -44,14 +44,15 @@ func main() {
 
 	// creating a aws session
 	awsSess, err := session.NewSession(&aws.Config{
+    Region: aws.String("us-east-1"),
 		Credentials: credentials.NewStaticCredentials(
 			os.Getenv("AWS_ACCESS_KEY"),
 			os.Getenv("AWS_SECRET_KEY"), ""),
 	})
 
-  if err != nil{
-    logger.Fatal(err)
-  }
+	 if err != nil{
+	   logger.Fatal(err)
+	 }
 
 	// defining the application
 	app := &api.Application{
