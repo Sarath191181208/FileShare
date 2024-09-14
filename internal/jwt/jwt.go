@@ -8,12 +8,12 @@ import (
 )
 
 type Claims struct {
-  Id string `json:"id"`
+  Id int64 `json:"id"`
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(jwtKey, email, id string) (string, error) {
+func GenerateJWT(jwtKey, email string, id int64) (string, error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
     Id: id,
