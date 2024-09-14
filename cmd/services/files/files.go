@@ -124,3 +124,22 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 		responseWriter.ServerErrorResponse(w, r, err)
 	}
 }
+func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value("id").(int64)
+	responseWriter := response.NewResponseWriter(h.Logger)
+
+	// TODO: Handle pagination
+	// get the files based on the user id
+	metadata, err := h.models.MetaData.GetByUserID(id)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	data := json.Envelope{"metadata": metadata}
+	err = json.WriteJSON(data, w, http.StatusOK, nil)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+	}
+}
+
