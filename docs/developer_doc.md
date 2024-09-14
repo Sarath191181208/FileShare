@@ -29,3 +29,10 @@ This is clearly explained in the following [post](https://stackoverflow.com/ques
 ## What is `.tmux` ? 
 It is just a simple bash script to init the project to initialize tmux with the docker config and other dev tools
 easily rather than creating them one by one
+
+## What's **version** in user model
+
+We’ve included a **version** number column, which we will increment each time a
+user record is updated. This will allow us to use optimistic locking to prevent race
+conditions when updating user records, in the same way that we did with movies earlier
+in the book.
