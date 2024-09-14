@@ -41,7 +41,7 @@ in the book.
 - Passwords are compared using `bcrypt.CompareHashAndPassword()` which re-hashes using the same salt and cost param.
 - The compare function is safe against timing attacks because of `subtle.ConstantTimeCompare()` is an internal func of `bcrypt.CompareHashAndPassword`.
 
-## Signup request 
+## Signup request (`/signup`)
 The curl request will look as follows: 
 ```bash
 curl -X POST localhost:4000/register \
