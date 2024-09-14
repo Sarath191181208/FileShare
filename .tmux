@@ -22,6 +22,14 @@ if [ $? -ne 0 ];
   # Window 2: Command line window
   tmux new-window -t $SESSIONNAME:2 -n 'cmd'
 
+  # Window 3: Docker 
+  tmux new-window -t $SESSIONNAME:3 -n 'docker' 
+  tmux send-keys -t $SESSIONNAME:3 'docker-compose up' C-m
+
+  # Window 4: lazy docker
+  tmux new-window -t $SESSIONNAME:4 -n 'lazydocker'
+  tmux send-keys -t $SESSIONNAME:4 'lazydocker' C-m
+
 fi
 
 tmux attach -t $SESSIONNAME
