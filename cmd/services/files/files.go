@@ -5,6 +5,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"strconv"
 
 	"sarath/backend_project/internal/data"
 	"sarath/backend_project/internal/json"
@@ -14,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -98,4 +100,27 @@ func (h *Handler) uploadToS3(file multipart.File, s3Key string) (string, error) 
 	}
 
 	return result.Location, nil
+}
+
+func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	responseWriter := response.NewResponseWriter(h.Logger)
+	fileID, err := strconv.ParseInt(vars["file_id"], 10, 64)
+	if err != nil {
+		responseWriter.BadRequestResponse(w, r, err)
+		return
+	}
+
+	// return the file url whose id is fileID
+	metadata, err := h.models.MetaData.Get(fileID)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	data := json.Envelope{"file_url": metadata.FileUrl}
+	err = json.WriteJSON(data, w, http.StatusOK, nil)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+	}
 }
