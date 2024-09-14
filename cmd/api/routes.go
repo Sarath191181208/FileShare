@@ -16,7 +16,7 @@ func (app *Application) Routes() *mux.Router {
   userHandler := user.NewHandler(app.Logger, app.Models);
 
   router.HandleFunc("/register", userHandler.RegisterUserHandler).Methods(http.MethodPost)
-  router.HandleFunc("/login", userHandler.LoginUserHandler).Methods(http.MethodPost)
+  router.HandleFunc("/login", userHandler.GetLoginUserHandler(app.Config.Jwt.Secret)).Methods(http.MethodPost)
 
   // TODO: Keep pagination, caching in mind
 	// subrouter.HandleFunc("/files", app.getFilesMetadata).Methods(http.MethodGet)
