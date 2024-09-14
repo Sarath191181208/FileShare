@@ -11,6 +11,9 @@ optimizations.
 
 - postgres `citext` object.
 
+## SQL Injection attacks 
+The app is safe against injection attacks are we are passing parametrized quries to the db using the function `QueryRowContext`. Therefore go internally handles the sql injection attacks by sanitizing the input.
+
 The problem is clearly written in the following
 [doc](https://drive.google.com/file/d/1zeOOxV8rMPXlVkRl236omBBQW_f1EW9g/view)
 
