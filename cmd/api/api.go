@@ -2,6 +2,7 @@ package api
 
 import (
 	"log"
+	"mime/multipart"
 
 	"sarath/backend_project/internal/cache"
 	"sarath/backend_project/internal/data"
@@ -29,8 +30,8 @@ type Application struct {
 	Config    Config
 	Logger    *log.Logger
 	Models    *data.Models
-	FileStore *filestore.FileStore
-	Cache     *cache.Cache
+	FileStore filestore.FileStore
+	Cache     cache.Cache
 }
 
 func (app *Application) Background(fn func()) {
@@ -39,7 +40,7 @@ func (app *Application) Background(fn func()) {
 		// Recover any panic.
 		defer func() {
 			if err := recover(); err != nil {
-        app.Logger.Printf("Recovered from a panic: %v", err)
+				app.Logger.Printf("Recovered from a panic: %v", err)
 			}
 		}()
 		// Execute the arbitrary function that we passed as the parameter.

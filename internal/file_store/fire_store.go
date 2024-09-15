@@ -9,12 +9,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-type FileStore struct {
+type FileStore interface {
+	UploadFile(file multipart.File, fileKey string) (string, error)
+	Delete(fileKey string) error
+}
+
+type AWSFileStore struct {
 	Bucket string
 	S3Sess *session.Session
 }
 
-func (fs *FileStore) UploadFile(file multipart.File, s3Key string) (string, error) {
+func (fs *AWSFileStore) UploadFile(file multipart.File, s3Key string) (string, error) {
 	uploader := s3manager.NewUploader(fs.S3Sess)
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
@@ -29,7 +34,7 @@ func (fs *FileStore) UploadFile(file multipart.File, s3Key string) (string, erro
 	return result.Location, nil
 }
 
-func (fs *FileStore) Delete(s3Key string) error {
+func (fs *AWSFileStore) Delete(s3Key string) error {
 	s3Client := s3.New(fs.S3Sess)
 	_, err := s3Client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(fs.Bucket),

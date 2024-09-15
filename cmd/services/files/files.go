@@ -21,11 +21,11 @@ import (
 type Handler struct {
 	Logger    *log.Logger
 	models    *data.Models
-	fileStore *filestore.FileStore
-	Cache     *cache.Cache
+	fileStore filestore.FileStore
+	Cache     cache.Cache
 }
 
-func NewHandler(logger *log.Logger, models *data.Models, fileStore *filestore.FileStore, cache *cache.Cache) *Handler {
+func NewHandler(logger *log.Logger, models *data.Models, fileStore filestore.FileStore, cache cache.Cache) *Handler {
 	return &Handler{
 		Logger:    logger,
 		models:    models,
@@ -216,7 +216,6 @@ func (h *Handler) SearchFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func (h *Handler) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	responseWriter := response.NewResponseWriter(h.Logger)
 
@@ -226,53 +225,53 @@ func (h *Handler) UpdateFile(w http.ResponseWriter, r *http.Request) {
 		responseWriter.BadRequestResponse(w, r, err)
 		return
 	}
-  
-  // get the user userId 
-  userId := r.Context().Value("id").(int64)
 
-  // get the metadata of the file
-  metadata, err := h.models.MetaData.Get(fileID) 
-  if err != nil {
-    responseWriter.ServerErrorResponse(w, r, err)
-    return
-  }
+	// get the user userId
+	userId := r.Context().Value("id").(int64)
 
-  // check if the file belongs to the user 
-  if metadata.UserId != userId {
-    responseWriter.UnauthorizedResponse(w, r, fmt.Errorf("unauthorized access"))
-    h.Logger.Printf("%d is trying to access %d", userId, metadata.UserId)
-    return
-  }
+	// get the metadata of the file
+	metadata, err := h.models.MetaData.Get(fileID)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+		return
+	}
 
-  // Read the input from the request
-  var input struct { 
-    Name string `json:"name"` 
-  }
+	// check if the file belongs to the user
+	if metadata.UserId != userId {
+		responseWriter.UnauthorizedResponse(w, r, fmt.Errorf("unauthorized access"))
+		h.Logger.Printf("%d is trying to access %d", userId, metadata.UserId)
+		return
+	}
 
-  err = json.ReadJSON(&input, w, r)
-  if err != nil {
-    responseWriter.BadRequestResponse(w, r, err)
-    return
-  }
+	// Read the input from the request
+	var input struct {
+		Name string `json:"name"`
+	}
 
-  // update the metadata
-  metadata.Name = input.Name
+	err = json.ReadJSON(&input, w, r)
+	if err != nil {
+		responseWriter.BadRequestResponse(w, r, err)
+		return
+	}
 
-  // update the metadata in the database
-  err = h.models.MetaData.Update(metadata)
-  if err != nil {
-    responseWriter.ServerErrorResponse(w, r, err)
-    return
-  }
+	// update the metadata
+	metadata.Name = input.Name
 
-  // invalidate the cache
-  err = h.Cache.Delete(strconv.FormatInt(userId, 10))
-  if err != nil {
-    h.Logger.Printf("error deleting cache: %v", err)
-  }
+	// update the metadata in the database
+	err = h.models.MetaData.Update(metadata)
+	if err != nil {
+		responseWriter.ServerErrorResponse(w, r, err)
+		return
+	}
 
-  err = h.Cache.Delete(strconv.FormatInt(fileID, 10))
-  if err != nil {
-    h.Logger.Printf("error deleting cache: %v", err)
-  }
+	// invalidate the cache
+	err = h.Cache.Delete(strconv.FormatInt(userId, 10))
+	if err != nil {
+		h.Logger.Printf("error deleting cache: %v", err)
+	}
+
+	err = h.Cache.Delete(strconv.FormatInt(fileID, 10))
+	if err != nil {
+		h.Logger.Printf("error deleting cache: %v", err)
+	}
 }

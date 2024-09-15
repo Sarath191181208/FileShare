@@ -79,11 +79,11 @@ func main() {
 		Config: config,
 		Logger: logger,
 		Models: data.NewModels(db),
-		FileStore: &filestore.FileStore{
+		FileStore: &filestore.AWSFileStore{
 			Bucket: config.Aws.Bucket,
 			S3Sess: awsSess,
 		},
-		Cache: &cache.Cache{
+		Cache: &cache.RedisCache{
 			Client: redisClient,
 		},
 	}
