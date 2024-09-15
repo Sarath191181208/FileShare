@@ -31,6 +31,23 @@ func (m *MetaDataModel) Update(metaData *MetaData) error {
   return err
 }
 
+func (m *MetaDataModel) Delete(id int64) error {
+  stmt := `DELETE FROM metadata WHERE id = $1`
+  _, err := m.DB.Exec(stmt, id)
+  return err
+}
+
+
+func (m *MetaDataModel) FetchTop() (*MetaData, error) {
+  stmt := `SELECT id, file_url FROM metadata ORDER BY upload_date ASC LIMIT 1`
+  meta := &MetaData{}
+  err := m.DB.QueryRow(stmt).Scan(&meta.ID, &meta.FileUrl)
+  if err != nil {
+    return nil, err
+  }
+  return meta, nil
+}
+
 func (m *MetaDataModel) Get(id int64) (*MetaData, error) {
 	stmt := `SELECT id, name, upload_date, size, content_type, file_url FROM metadata WHERE id = $1`
 	meta := &MetaData{}
