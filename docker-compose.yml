@@ -1,24 +1,37 @@
 services:
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: backend
-      POSTGRES_PASSWORD: psswd
-      POSTGRES_USER: user
-    volumes:
-      - ./.postgres-data/db:/var/lib/postgresql/data 
+  app:
+    build: .
     ports:
-      - 5432:5432
-  cache:
-    image: redis:latest
-    restart: always
+      - "4000:4000"
+    env_file:
+      - .env
     volumes:
-      - ./.redis/data/:/root/redis
-      - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-      - REDIS_PASSWORD=my-password
-      - REDIS_PORT=6379
-      - REDIS_DATABASES=16
-    ports:
-      - 6379:6379
+      - ./migrations:/migrations
+  #   depends_on:
+  #     - db 
+  #     - cache
+  #
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: backend
+  #     POSTGRES_PASSWORD: psswd
+  #     POSTGRES_USER: user
+  #   volumes:
+  #     - ./.postgres-data/db:/var/lib/postgresql/data 
+  #   ports:
+  #     - 5432:5432
+  #
+  # cache:
+  #   image: redis:latest
+  #   restart: always
+  #   volumes:
+  #     - ./.redis/data/:/root/redis
+  #     - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf
+  #   environment:
+  #     - REDIS_PASSWORD=my-password
+  #     - REDIS_PORT=6379
+  #     - REDIS_DATABASES=16
+  #   ports:
+  #     - 6379:6379
