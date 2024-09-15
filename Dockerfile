@@ -22,13 +22,13 @@ FROM debian:bookworm-slim
 # Install required packages for PostgreSQL, Redis clients, and migrate tool
 RUN apt-get update && \
     apt-get install -y postgresql-client redis-tools && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-RUN apt-get install -y curl && \
+    apt-get install -y curl && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | \
     tar xvz && \
     mv migrate.linux-amd64 /usr/local/bin/migrate && \
-    chmod +x /usr/local/bin/migrate 
+    chmod +x /usr/local/bin/migrate && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy the migration files
 COPY migrations /migrations
