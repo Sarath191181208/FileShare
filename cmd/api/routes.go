@@ -11,6 +11,10 @@ import (
 func (app *Application) Routes() *mux.Router {
 	router := mux.NewRouter()
 
+  // log the request 
+  app.Logger.Printf("Setting up routes")
+  router.Use(getLogginMiddleware(app.Logger))
+
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
   subrouter.Use(getAuthMiddlewarewithJWT(app.Config.Jwt.Secret))
 
