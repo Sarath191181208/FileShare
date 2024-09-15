@@ -24,6 +24,7 @@ if [ $? -ne 0 ];
 
   # Window 3: Docker 
   tmux new-window -t $SESSIONNAME:3 -n 'docker' 
+  tmux send-keys -t $SESSIONNAME:3 'docker stop $(docker ps -a -q)' C-m
   tmux send-keys -t $SESSIONNAME:3 'docker-compose up' C-m
 
   # Window 4: lazy docker
