@@ -79,6 +79,12 @@ func (h *Handler) UploadFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+  // invalidate the cache 
+  err = h.Cache.Delete(strconv.FormatInt(id, 10))
+  if err != nil {
+    h.Logger.Printf("error deleting cache: %v", err)
+  }
+
 	// send the file url and metadata to the client
 	data := json.Envelope{"file_url": fileURL, "metadata": metadata}
 	err = json.WriteJSON(data, w, http.StatusCreated, nil)
