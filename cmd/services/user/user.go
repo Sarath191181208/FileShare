@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os/user"
 
 	"sarath/backend_project/internal/data"
 	"sarath/backend_project/internal/json"
@@ -87,6 +88,17 @@ func (h *Handler) GetLoginUserHandler(jwtSecret string) func(http.ResponseWriter
 			responseWriter.BadRequestResponse(w, r, err)
 			return
 		}
+
+    // validate the incomming data 
+    validator := validator.New()
+
+    data.ValidateEmail(validator, input.Email)
+    data.ValidatePasswordPlaintext(validator, input.Password)
+
+    if !validator.Valid() {
+      responseWriter.FailedValidationResponse(w, r, validator.Errors)
+      return 
+    }
 
 		// fetch the user by email
 		user, err := h.models.Users.GetByEmail(input.Email)
