@@ -17,6 +17,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"sarath/backend_project/cmd/api"
+	"sarath/backend_project/internal/cache"
 	"sarath/backend_project/internal/data"
 	filestore "sarath/backend_project/internal/file_store"
 )
@@ -42,8 +43,6 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-
-
 	// starting the db
 	db, err := OpenDB(config)
 	if err != nil {
@@ -63,28 +62,30 @@ func main() {
 
 	// creating a redis client
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
+		Addr: redisAddr,
 		// Password: redisPassword,
-		DB:       0,
+		DB: 0,
 	})
 
-  // ping the redis client 
-  _, err = redisClient.Ping().Result()
-  if err != nil {
-    logger.Fatal(err)
-  }
-  logger.Printf("redis connection pool established")
+	// ping the redis client
+	_, err = redisClient.Ping().Result()
+	if err != nil {
+		logger.Fatal(err)
+	}
+	logger.Printf("redis connection pool established")
 
 	// defining the application
 	app := &api.Application{
 		Config: config,
 		Logger: logger,
 		Models: data.NewModels(db),
-    FileStore: &filestore.FileStore{ 
-      Bucket: config.Aws.Bucket,
-      S3Sess: awsSess,
-    },
-		Cache:  redisClient,
+		FileStore: &filestore.FileStore{
+			Bucket: config.Aws.Bucket,
+			S3Sess: awsSess,
+		},
+		Cache: &cache.Cache{
+			Client: redisClient,
+		},
 	}
 
 	server := &http.Server{

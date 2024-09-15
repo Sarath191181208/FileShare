@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"time"
 
+	"sarath/backend_project/internal/cache"
 	"sarath/backend_project/internal/data"
 	filestore "sarath/backend_project/internal/file_store"
 	"sarath/backend_project/internal/json"
 	"sarath/backend_project/internal/response"
 
-	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
@@ -22,10 +22,10 @@ type Handler struct {
 	Logger    *log.Logger
 	models    *data.Models
 	fileStore *filestore.FileStore
-	Cache     *redis.Client
+	Cache     *cache.Cache
 }
 
-func NewHandler(logger *log.Logger, models *data.Models, fileStore *filestore.FileStore, cache *redis.Client) *Handler {
+func NewHandler(logger *log.Logger, models *data.Models, fileStore *filestore.FileStore, cache *cache.Cache) *Handler {
 	return &Handler{
 		Logger:    logger,
 		models:    models,
@@ -97,7 +97,7 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if the file url is in cache
-	fileUrl, err := h.Cache.Get(strconv.FormatInt(fileID, 10)).Result()
+	fileUrl, err := h.Cache.Get(strconv.FormatInt(fileID, 10))
 	if err == nil {
 		data := json.Envelope{"file_url": fileUrl}
 		err = json.WriteJSON(data, w, http.StatusOK, nil)
@@ -115,7 +115,7 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// write metadata to cache
-	err = h.Cache.Set(strconv.FormatInt(fileID, 10), metadata.FileUrl, time.Minute*5).Err()
+	err = h.Cache.Set(strconv.FormatInt(fileID, 10), metadata.FileUrl, time.Minute*5)
 	if err != nil {
 		h.Logger.Printf("error writing to cache: %v", err)
 	}
@@ -133,7 +133,7 @@ func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 	responseWriter := response.NewResponseWriter(h.Logger)
 
 	// check if the metadata is in cache
-	cacheMetaData, err := h.Cache.Get(cacheKey).Result()
+	cacheMetaData, err := h.Cache.Get(cacheKey)
 	if err == nil {
 		var metadataList []*data.MetaData
 		err = encjson.Unmarshal([]byte(cacheMetaData), &metadataList)
@@ -161,7 +161,7 @@ func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.Logger.Printf("error marshalling metadata: %v", err)
 	}
-	err = h.Cache.Set(cacheKey, string(jsonData), time.Minute*5).Err()
+	err = h.Cache.Set(cacheKey, string(jsonData), time.Minute*5)
 	if err != nil {
 		h.Logger.Printf("error writing to cache: %v", err)
 	}

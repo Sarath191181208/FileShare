@@ -3,10 +3,10 @@ package api
 import (
 	"log"
 
+	"sarath/backend_project/internal/cache"
 	"sarath/backend_project/internal/data"
 	filestore "sarath/backend_project/internal/file_store"
 
-	"github.com/go-redis/redis"
 )
 
 // Delcaring the version global constant
@@ -31,5 +31,5 @@ type Application struct {
 	Logger    *log.Logger
 	Models    *data.Models
 	FileStore *filestore.FileStore
-	Cache     *redis.Client
+	Cache     *cache.Cache
 }
