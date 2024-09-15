@@ -79,13 +79,13 @@ func (m UserModel) Insert(user *User) error {
 	query := `
     INSERT INTO users (email, password_hash)
     VALUES ($1, $2)
-    RETURNING id, created_at, version`
+    RETURNING id, version`
 	args := []interface{}{user.Email, user.Password.hash}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt, &user.Version)
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.Version)
 	if err == nil {
 		return nil
 	}
@@ -100,7 +100,7 @@ func (m UserModel) Insert(user *User) error {
 
 func (m UserModel) GetByEmail(email string) (*User, error) {
   query := `
-    SELECT id, created_at, email, password_hash, version
+    SELECT id, email, password_hash, version
     FROM users
     WHERE email = $1`
 
@@ -111,7 +111,6 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 
   err := m.DB.QueryRowContext(ctx, query, email).Scan(
     &user.ID,
-    &user.CreatedAt,
     &user.Email,
     &user.Password.hash,
     &user.Version,

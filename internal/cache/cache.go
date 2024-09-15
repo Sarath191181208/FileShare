@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -29,3 +30,17 @@ func (c *RedisCache) Delete(key string) error {
 }
 
 
+type MockCache struct{}
+
+
+func (m *MockCache) Set(key string, value interface{}, time time.Duration) error {
+  return nil
+}
+
+func (m *MockCache) Get(key string) (string, error) {
+  return "", errors.New("not found")
+}
+
+func (m *MockCache) Delete(key string) error {
+  return nil
+}

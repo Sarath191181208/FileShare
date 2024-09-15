@@ -14,6 +14,16 @@ type FileStore interface {
 	Delete(fileKey string) error
 }
 
+type MockFileStore struct{}
+
+func (m *MockFileStore) UploadFile(file multipart.File, name string) (string, error) {
+  return "http://example.com/" + name, nil
+}
+
+func (m *MockFileStore) Delete(fileURL string) error {
+  return nil
+}
+
 type AWSFileStore struct {
 	Bucket string
 	S3Sess *session.Session
