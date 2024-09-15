@@ -94,7 +94,7 @@ This is the `go` implementation of the project problem statement given in the
     (`GET /share/{file_id}`).
   - [x] Cache file metadata using Redis (or in-memory caching) to optimize
     performance.
-  - [ ] Optional: Implement URL expiration for shared files.
+  - [ ] **Optional**: Implement URL expiration for shared files.
 
 - **How did I solve the requirements**:
 
@@ -220,7 +220,7 @@ This is the `go` implementation of the project problem statement given in the
 
 - **Requirements**:
   - [x] Use Go routines or a background worker to periodically check and delete files.
-  - [x] Remove the corresponding metadata from the PostgreSQL database.
+  - Remove the corresponding metadata from the PostgreSQL database.
 
 - **How did I solve the requirements**:
   - Refer to the [architecture.md](./docs/architecture_doc.md) for the implementation details.
