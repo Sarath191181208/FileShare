@@ -7,7 +7,6 @@ services:
       - .env
     volumes:
       - ./migrations:/migrations
-      - ./env:/app/env
     depends_on:
       - db 
       - cache
@@ -32,5 +31,3 @@ services:
       - REDIS_PASSWORD=my-password
       - REDIS_PORT=6379
       - REDIS_DATABASES=16
-    # ports:
-    #   - 6379:6379
