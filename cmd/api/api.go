@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"sarath/backend_project/internal/data"
+	filestore "sarath/backend_project/internal/file_store"
 
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-redis/redis"
 )
 
@@ -27,9 +27,9 @@ type Config struct {
 }
 
 type Application struct {
-	Config Config
-	Logger *log.Logger
-	Models *data.Models
-	S3Sess *session.Session
-	Cache  *redis.Client
+	Config    Config
+	Logger    *log.Logger
+	Models    *data.Models
+	FileStore *filestore.FileStore
+	Cache     *redis.Client
 }

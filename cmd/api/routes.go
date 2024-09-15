@@ -15,7 +15,7 @@ func (app *Application) Routes() *mux.Router {
   subrouter.Use(getAuthMiddlewarewithJWT(app.Config.Jwt.Secret))
 
   userHandler := user.NewHandler(app.Logger, app.Models);
-  filesHandler := files.NewHandler(app.Logger, app.Models, app.S3Sess, app.Config.Aws.Bucket, app.Cache);
+  filesHandler := files.NewHandler(app.Logger, app.Models, app.FileStore, app.Cache);
 
   router.HandleFunc("/register", userHandler.RegisterUserHandler).Methods(http.MethodPost)
   router.HandleFunc("/login", userHandler.GetLoginUserHandler(app.Config.Jwt.Secret)).Methods(http.MethodPost)

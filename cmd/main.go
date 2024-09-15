@@ -18,6 +18,7 @@ import (
 
 	"sarath/backend_project/cmd/api"
 	"sarath/backend_project/internal/data"
+	filestore "sarath/backend_project/internal/file_store"
 )
 
 func main() {
@@ -37,9 +38,11 @@ func main() {
 	awsToken := ""
 
 	redisAddr := os.Getenv("REDIS_ADDRESS")
-	redisPassword := os.Getenv("REDIS_PASSWORD")
+	// redisPassword := os.Getenv("REDIS_PASSWORD")
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+
+
 
 	// starting the db
 	db, err := OpenDB(config)
@@ -61,7 +64,7 @@ func main() {
 	// creating a redis client
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
-		Password: redisPassword,
+		// Password: redisPassword,
 		DB:       0,
 	})
 
@@ -77,7 +80,10 @@ func main() {
 		Config: config,
 		Logger: logger,
 		Models: data.NewModels(db),
-		S3Sess: awsSess,
+    FileStore: &filestore.FileStore{ 
+      Bucket: config.Aws.Bucket,
+      S3Sess: awsSess,
+    },
 		Cache:  redisClient,
 	}
 

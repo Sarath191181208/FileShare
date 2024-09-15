@@ -1,41 +1,36 @@
 package files
 
 import (
+	encjson "encoding/json"
 	"fmt"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"strconv"
 	"time"
-	encjson "encoding/json"
 
 	"sarath/backend_project/internal/data"
+	filestore "sarath/backend_project/internal/file_store"
 	"sarath/backend_project/internal/json"
 	"sarath/backend_project/internal/response"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
 type Handler struct {
-	Logger *log.Logger
-	S3Sess *session.Session
-	models *data.Models
-	Bucket string
-  Cache *redis.Client
+	Logger    *log.Logger
+	models    *data.Models
+	fileStore *filestore.FileStore
+	Cache     *redis.Client
 }
 
-func NewHandler(logger *log.Logger, models *data.Models, s3Sess *session.Session, bucket string, cache *redis.Client) *Handler {
+func NewHandler(logger *log.Logger, models *data.Models, fileStore *filestore.FileStore, cache *redis.Client) *Handler {
 	return &Handler{
-		Logger: logger,
-		S3Sess: s3Sess,
-		models: models,
-		Bucket: bucket,
-    Cache: cache,
+		Logger:    logger,
+		models:    models,
+		fileStore: fileStore,
+		Cache:     cache,
 	}
 }
 
@@ -59,7 +54,7 @@ func (h *Handler) UploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	name := fmt.Sprintf("%s-%s", uuid.New().String(), handler.Filename)
 
 	// upload the file to s3
-	fileURL, err := h.uploadToS3(file, name)
+	fileURL, err := h.fileStore.UploadFile(file, name)
 	if err != nil {
 		responseWriter.ServerErrorResponse(w, r, err)
 		return
@@ -92,21 +87,6 @@ func (h *Handler) UploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) uploadToS3(file multipart.File, s3Key string) (string, error) {
-	uploader := s3manager.NewUploader(h.S3Sess)
-
-	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(h.Bucket),
-		Key:    aws.String(s3Key),
-		Body:   file,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return result.Location, nil
-}
-
 func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	responseWriter := response.NewResponseWriter(h.Logger)
@@ -116,16 +96,16 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  // check if the file url is in cache 
-  fileUrl, err := h.Cache.Get(strconv.FormatInt(fileID, 10)).Result()
-  if err == nil {
-    data := json.Envelope{"file_url": fileUrl}
-    err = json.WriteJSON(data, w, http.StatusOK, nil)
-    if err != nil {
-      responseWriter.ServerErrorResponse(w, r, err)
-    }
-    return
-  }
+	// check if the file url is in cache
+	fileUrl, err := h.Cache.Get(strconv.FormatInt(fileID, 10)).Result()
+	if err == nil {
+		data := json.Envelope{"file_url": fileUrl}
+		err = json.WriteJSON(data, w, http.StatusOK, nil)
+		if err != nil {
+			responseWriter.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
 
 	// return the file url whose id is fileID
 	metadata, err := h.models.MetaData.Get(fileID)
@@ -134,11 +114,11 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  // write metadata to cache 
-  err = h.Cache.Set(strconv.FormatInt(fileID, 10), metadata.FileUrl, time.Minute*5).Err()
-  if err != nil {
-    h.Logger.Printf("error writing to cache: %v", err)
-  }
+	// write metadata to cache
+	err = h.Cache.Set(strconv.FormatInt(fileID, 10), metadata.FileUrl, time.Minute*5).Err()
+	if err != nil {
+		h.Logger.Printf("error writing to cache: %v", err)
+	}
 
 	data := json.Envelope{"file_url": metadata.FileUrl}
 	err = json.WriteJSON(data, w, http.StatusOK, nil)
@@ -149,24 +129,24 @@ func (h *Handler) ShareFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value("id").(int64)
-  cacheKey := strconv.FormatInt(id, 10)
+	cacheKey := strconv.FormatInt(id, 10)
 	responseWriter := response.NewResponseWriter(h.Logger)
 
-  // check if the metadata is in cache 
-  cacheMetaData, err := h.Cache.Get(cacheKey).Result()
-  if err == nil {
-    var metadataList []*data.MetaData
-    err = encjson.Unmarshal([]byte(cacheMetaData), &metadataList)
-    if err != nil {
-      h.Logger.Printf("error unmarshalling metadata: %v", err)
-    }
-    data := json.Envelope{"metadata": metadataList}
-    err = json.WriteJSON(data, w, http.StatusOK, nil)
-    if err != nil {
-      responseWriter.ServerErrorResponse(w, r, err)
-    }
-    return
-  }
+	// check if the metadata is in cache
+	cacheMetaData, err := h.Cache.Get(cacheKey).Result()
+	if err == nil {
+		var metadataList []*data.MetaData
+		err = encjson.Unmarshal([]byte(cacheMetaData), &metadataList)
+		if err != nil {
+			h.Logger.Printf("error unmarshalling metadata: %v", err)
+		}
+		data := json.Envelope{"metadata": metadataList}
+		err = json.WriteJSON(data, w, http.StatusOK, nil)
+		if err != nil {
+			responseWriter.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
 
 	// TODO: Handle pagination
 	// get the files based on the user id
@@ -176,17 +156,17 @@ func (h *Handler) GetFilesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  // write metadata to cache 
-  jsonData, err := encjson.Marshal(metadata) 
-  if err != nil {
-    h.Logger.Printf("error marshalling metadata: %v", err)
-  }
-  err = h.Cache.Set(cacheKey, string(jsonData), time.Minute*5).Err()
-  if err != nil {
-    h.Logger.Printf("error writing to cache: %v", err)
-  }
+	// write metadata to cache
+	jsonData, err := encjson.Marshal(metadata)
+	if err != nil {
+		h.Logger.Printf("error marshalling metadata: %v", err)
+	}
+	err = h.Cache.Set(cacheKey, string(jsonData), time.Minute*5).Err()
+	if err != nil {
+		h.Logger.Printf("error writing to cache: %v", err)
+	}
 
-  // send the metadata to the client
+	// send the metadata to the client
 	data := json.Envelope{"metadata": metadata}
 	err = json.WriteJSON(data, w, http.StatusOK, nil)
 	if err != nil {
@@ -206,8 +186,8 @@ func (h *Handler) SearchFileHandler(w http.ResponseWriter, r *http.Request) {
 	responseWriter := response.NewResponseWriter(h.Logger)
 
 	// convert the time string to time.Time
-  var parsedTime time.Time
-  var err error
+	var parsedTime time.Time
+	var err error
 	if timeString != "" {
 		parsedTime, err = time.Parse(time.RFC3339, timeString)
 		if err != nil {
