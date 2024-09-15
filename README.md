@@ -3,6 +3,29 @@
 This is the `go` implementation of the project problem statement given in the
 [doc](https://drive.google.com/file/d/1zeOOxV8rMPXlVkRl236omBBQW_f1EW9g/view).
 
+## Local setup 
+```bash
+touch .env 
+
+cat > .env <<EOL
+AWS_ACCESS_KEY="...."
+AWS_SECRET_KEY="..."
+AWS_BUCKET="trademarkia.backend.database"
+AWS_REGION="us-east-1"
+
+REDIS_ADDRESS="cache:6379"
+REDIS_PASSWORD="my-password"
+
+DB_DSN="postgres://user:psswd@db:5432/backend?sslmode=disable"
+JWT_SECRET="JWT_SECRET"
+EOL
+
+# start docker this might be different for different os
+sudo systemctl start docker
+
+docker compose up
+```
+
 ## Routes:
 
 | **Endpoint**              | **Usage**         | **Parameters**                                                                   | **Result**                                      | **Description**                                                            | Authorization Required |
