@@ -226,5 +226,16 @@ This is the `go` implementation of the project problem statement given in the
   - Refer to the [architecture.md](./docs/architecture_doc.md) for the implementation details.
 
 
-8. Testing:
-● Task: Write tests for your APIs.(can be one or two , just to test if you can do it )
+### 8. Testing
+
+- **Task**: Write tests for your APIs.
+
+- **Requirements**:
+  - [x] Create one or two tests to ensure your API endpoints function correctly.
+
+- **How did I solve the requirements**:
+  - **Test Setup**:
+    1. **Define Mock Handlers**: Implement mock handlers to simulate responses from your actual endpoints.
+    2. **Initialize Router**: Set up a router with the mock handlers.
+    3. **Simulate Requests**: Use `httptest.NewRequest` to create HTTP requests and `httptest.NewRecorder` to capture responses.
+    4. **Assertions**: Validate the response status code and body using assertions.
