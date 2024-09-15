@@ -2,8 +2,6 @@ package api
 
 import (
 	"log"
-	"mime/multipart"
-
 	"sarath/backend_project/internal/cache"
 	"sarath/backend_project/internal/data"
 	filestore "sarath/backend_project/internal/file_store"
