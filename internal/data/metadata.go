@@ -59,7 +59,7 @@ func (m *MetaDataModel) Get(id int64) (*MetaData, error) {
 }
 
 func (m *MetaDataModel) GetByUserID(id int64) ([]*MetaData, error) {
-	stmt := `SELECT id, name, upload_date, size, content_type, file_url FROM metadata WHERE user_id = $1 LIMIT 10`
+	stmt := `SELECT id, user_id, name, upload_date, size, content_type, file_url FROM metadata WHERE user_id = $1 LIMIT 10`
 	rows, err := m.DB.Query(stmt, id)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (m *MetaDataModel) GetByUserID(id int64) ([]*MetaData, error) {
 	var metadata []*MetaData
 	for rows.Next() {
 		meta := &MetaData{}
-		err := rows.Scan(&meta.ID, &meta.Name, &meta.UploadDate, &meta.Size, &meta.ContentType, &meta.FileUrl)
+		err := rows.Scan(&meta.ID, &meta.UserId, &meta.Name, &meta.UploadDate, &meta.Size, &meta.ContentType, &meta.FileUrl)
 		if err != nil {
 			return nil, err
 		}
