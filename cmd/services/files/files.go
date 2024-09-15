@@ -209,3 +209,64 @@ func (h *Handler) SearchFileHandler(w http.ResponseWriter, r *http.Request) {
 		responseWriter.ServerErrorResponse(w, r, err)
 	}
 }
+
+
+func (h *Handler) UpdateFile(w http.ResponseWriter, r *http.Request) {
+	responseWriter := response.NewResponseWriter(h.Logger)
+
+	vars := mux.Vars(r)
+	fileID, err := strconv.ParseInt(vars["file_id"], 10, 64)
+	if err != nil {
+		responseWriter.BadRequestResponse(w, r, err)
+		return
+	}
+  
+  // get the user userId 
+  userId := r.Context().Value("id").(int64)
+
+  // get the metadata of the file
+  metadata, err := h.models.MetaData.Get(fileID) 
+  if err != nil {
+    responseWriter.ServerErrorResponse(w, r, err)
+    return
+  }
+
+  // check if the file belongs to the user 
+  if metadata.UserId != userId {
+    responseWriter.UnauthorizedResponse(w, r, fmt.Errorf("unauthorized access"))
+    h.Logger.Printf("%d is trying to access %d", userId, metadata.UserId)
+    return
+  }
+
+  // Read the input from the request
+  var input struct { 
+    Name string `json:"name"` 
+  }
+
+  err = json.ReadJSON(&input, w, r)
+  if err != nil {
+    responseWriter.BadRequestResponse(w, r, err)
+    return
+  }
+
+  // update the metadata
+  metadata.Name = input.Name
+
+  // update the metadata in the database
+  err = h.models.MetaData.Update(metadata)
+  if err != nil {
+    responseWriter.ServerErrorResponse(w, r, err)
+    return
+  }
+
+  // invalidate the cache
+  err = h.Cache.Delete(strconv.FormatInt(userId, 10))
+  if err != nil {
+    h.Logger.Printf("error deleting cache: %v", err)
+  }
+
+  err = h.Cache.Delete(strconv.FormatInt(fileID, 10))
+  if err != nil {
+    h.Logger.Printf("error deleting cache: %v", err)
+  }
+}

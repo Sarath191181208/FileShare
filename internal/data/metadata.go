@@ -25,6 +25,12 @@ func (m *MetaDataModel) Insert(metaData *MetaData) error {
 	return m.DB.QueryRow(stmt, metaData.UserId, metaData.Name, metaData.Size, metaData.ContentType, metaData.FileUrl).Scan(&metaData.ID)
 }
 
+func (m *MetaDataModel) Update(metaData *MetaData) error {
+  stmt := `UPDATE metadata SET name = $1 WHERE id = $2`
+  _, err := m.DB.Exec(stmt, metaData.Name, metaData.ID)
+  return err
+}
+
 func (m *MetaDataModel) Get(id int64) (*MetaData, error) {
 	stmt := `SELECT id, name, upload_date, size, content_type, file_url FROM metadata WHERE id = $1`
 	meta := &MetaData{}

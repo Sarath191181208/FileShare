@@ -24,6 +24,7 @@ func (app *Application) Routes() *mux.Router {
   subrouter.HandleFunc("/upload", filesHandler.UploadFileHandler).Methods(http.MethodPost)
   subrouter.HandleFunc("/share/{file_id}", filesHandler.ShareFileHandler).Methods(http.MethodGet)
   subrouter.HandleFunc("/files", filesHandler.GetFilesHandler).Methods(http.MethodGet)
+  subrouter.HandleFunc("/files/{file_id}", filesHandler.UpdateFile).Methods(http.MethodPatch)
   subrouter.HandleFunc("/search", filesHandler.SearchFileHandler).Methods(http.MethodGet)
 
 	return router

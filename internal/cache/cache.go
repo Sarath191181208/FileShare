@@ -18,4 +18,8 @@ func (c *Cache) Get(key string) (string, error) {
   return c.Client.Get(key).Result()
 }
 
+func (c *Cache) Delete(key string) error {
+  return c.Client.Del(key).Err()
+}
+
 
