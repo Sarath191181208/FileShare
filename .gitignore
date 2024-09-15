@@ -1,5 +1,6 @@
 bin/
 tmp/
 .postgres-data/
+.redis/
 .null-ls*
 .env
