@@ -96,6 +96,16 @@ func main() {
 		WriteTimeout: 10 * time.Minute,
 	}
 
+	// run the background delete from db task
+	app.Background(func() {
+		ticker := time.NewTicker(10 * time.Minute)
+		defer ticker.Stop()
+		for v := range ticker.C {
+			app.Logger.Printf("Running delete from db task at %v", v)
+			app.DeleteFromDBTask()
+		}
+	})
+
 	// start the server
 	app.Logger.Printf("Starting %s server on %s", app.Config.Env, server.Addr)
 	err = server.ListenAndServe()
