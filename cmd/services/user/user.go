@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"os/user"
 
 	"sarath/backend_project/internal/data"
 	"sarath/backend_project/internal/json"
