@@ -39,6 +39,9 @@ RUN useradd -ms /bin/sh appuser
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
+# Copy the .env file into the container (if exists in your project root)
+COPY .env .
+
 # Copy the binary and entrypoint script from the builder stage
 COPY --from=builder /app/myapp .
 COPY entrypoint.sh .
